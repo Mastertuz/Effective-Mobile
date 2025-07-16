@@ -1,0 +1,90 @@
+### User Service API - HTTP Requests Examples
+
+# Эти примеры можно использовать в VS Code с расширением REST Client
+# или скопировать команды curl для терминала
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### Health Check
+GET {{baseUrl}}/health
+
+### 1. Авторизация администратора (получение токена)
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+### 2. Регистрация нового пользователя
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "fullName": "Иван Петров",
+  "birthDate": "1990-05-15",
+  "email": "ivan@example.com",
+  "password": "password123",
+  "role": "user"
+}
+
+### 3. Авторизация обычного пользователя
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "ivan@example.com",
+  "password": "password123"
+}
+
+### 4. Получение списка пользователей (только для админа)
+# Замените YOUR_ADMIN_TOKEN на реальный токен из ответа логина
+GET {{baseUrl}}/api/auth/users
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+### 5. Получение пользователя по ID (админ может получить любого)
+GET {{baseUrl}}/api/auth/users/1
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+### 6. Получение пользователя по ID (пользователь может получить только себя)
+GET {{baseUrl}}/api/auth/users/2
+Authorization: Bearer YOUR_USER_TOKEN
+
+### 7. Блокировка пользователя администратором
+PATCH {{baseUrl}}/api/auth/users/2/block
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+### 8. Попытка заблокировать себя (пользователем)
+PATCH {{baseUrl}}/api/auth/users/2/block
+Authorization: Bearer YOUR_USER_TOKEN
+
+### 9. Регистрация администратора
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "fullName": "Супер Админ",
+  "birthDate": "1985-01-01",
+  "email": "superadmin@example.com",
+  "password": "superadmin123",
+  "role": "admin"
+}
+
+### Примеры ошибок:
+
+### Попытка доступа без токена
+GET {{baseUrl}}/api/auth/users/1
+
+### Попытка доступа с неверным токеном
+GET {{baseUrl}}/api/auth/users/1
+Authorization: Bearer invalid_token
+
+### Попытка получить чужие данные обычным пользователем
+GET {{baseUrl}}/api/auth/users/1
+Authorization: Bearer YOUR_USER_TOKEN
+
+### Попытка получить список пользователей обычным пользователем
+GET {{baseUrl}}/api/auth/users
+Authorization: Bearer YOUR_USER_TOKEN
